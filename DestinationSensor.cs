@@ -24,6 +24,10 @@ namespace Simulator.Sensors
         [SensorParameter]
         public string InitPoseFrame;
 
+        [SensorParameter]
+        [Range(1.0f, 10.0f)]
+        public float DestinationCheckRadius = 1.0f;
+
         private BridgeInstance Bridge;
         private Publisher<Bridge.Data.Ros.PoseStamped> Publish;
         private Publisher<Bridge.Data.Ros.PoseWithCovarianceStamped> PublishInitPose;
@@ -60,7 +64,7 @@ namespace Simulator.Sensors
                 var sensorBridgePlugin = Activator.CreateInstance(GetDataBridgePlugin()) as ISensorBridgePlugin;
                 sensorBridgePlugin.Register(bridge.Plugin);
             }
-            catch (System.ArgumentException e)
+            catch (System.ArgumentException)
             {
                 Debug.Log("Bridge plugin is already registered");
             }
@@ -155,11 +159,14 @@ namespace Simulator.Sensors
                 Destroy(DestinationGO);
             }
 
-            DestinationGO = new GameObject("Destination");
             position.y = transform.position.y;
+            DestinationGO = new GameObject("Destination");
             DestinationGO.transform.position = position;
             DestinationGO.transform.rotation = Quaternion.Euler(rotation);
             DestinationGO.transform.parent = NavOrigin.transform;
+            DestinationGO.layer = LayerMask.NameToLayer("Destination");
+            SphereCollider col = DestinationGO.AddComponent<SphereCollider>();
+            col.radius = DestinationCheckRadius;
 
             var nav_pose = NavOrigin.GetNavPose(DestinationGO.transform);
 
