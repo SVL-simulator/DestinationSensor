@@ -37,10 +37,12 @@ namespace Simulator.Sensors
         private bool SendInitPose = false;
         private NavOrigin NavOrigin;
         private GameObject DestinationGO;
+        private Transform Marker;
 
         protected override void Initialize()
         {
             NavOrigin = NavOrigin.Find();
+            Marker = transform.Find("Marker");
         }
 
         protected override void Deinitialize()
@@ -198,11 +200,15 @@ namespace Simulator.Sensors
             SendDestination = true;
         }
 
-        public override void OnVisualize(Visualizer visualizer)
-        {
-            Debug.Assert(visualizer != null);
-        }
+        public override void OnVisualize(Visualizer visualizer) {}
 
-        public override void OnVisualizeToggle(bool state) { }
+        public override void OnVisualizeToggle(bool state)
+        {
+            if (Marker && DestinationGO)
+            {
+                Marker.position = DestinationGO.transform.position + new Vector3(0, 1, 0);
+                Marker.GetComponent<MeshRenderer>().enabled = state;
+            }
+        }
     }
 }
