@@ -5,13 +5,12 @@
  *
  */
 
+using System;
+using UnityEngine;
+using Simulator.Map;
 using Simulator.Bridge;
 using Simulator.Utilities;
-using UnityEngine;
 using Simulator.Sensors.UI;
-using System.Collections.Generic;
-using System;
-using Simulator.Map;
 
 namespace Simulator.Sensors
 {
@@ -35,14 +34,15 @@ namespace Simulator.Sensors
         private Bridge.Data.Ros.PoseWithCovarianceStamped InitPose;
         private bool SendDestination = false;
         private bool SendInitPose = false;
+        private bool ToggleVisualization = false;
         private NavOrigin NavOrigin;
         private GameObject DestinationGO;
-        private Transform Marker;
+        private Transform DestinationPin;
 
         protected override void Initialize()
         {
             NavOrigin = NavOrigin.Find();
-            Marker = transform.Find("Marker");
+            DestinationPin = transform.Find("Pin");
         }
 
         protected override void Deinitialize()
@@ -50,6 +50,11 @@ namespace Simulator.Sensors
             if (DestinationGO)
             {
                 Destroy(DestinationGO);
+            }
+
+            if (DestinationPin)
+            {
+                Destroy(DestinationPin);
             }
         }
 
@@ -100,6 +105,11 @@ namespace Simulator.Sensors
             else
             {
                 Debug.Log($"{Bridge != null} {Bridge?.Status}");
+            }
+
+            if (ToggleVisualization)
+            {
+                DestinationPin.Rotate(Vector3.up * (120.0f * Time.deltaTime));
             }
         }
 
@@ -170,8 +180,13 @@ namespace Simulator.Sensors
             SphereCollider col = DestinationGO.AddComponent<SphereCollider>();
             col.radius = DestinationCheckRadius;
 
-            var nav_pose = NavOrigin.GetNavPose(DestinationGO.transform);
+            if (DestinationPin)
+            {
+                DestinationPin.transform.parent = DestinationGO.transform;
+                DestinationPin.position = DestinationGO.transform.position + Vector3.up;
+            }
 
+            var nav_pose = NavOrigin.GetNavPose(DestinationGO.transform);
             Destination = new Bridge.Data.Ros.PoseStamped
             {
                 header = new Bridge.Data.Ros.Header()
@@ -204,10 +219,10 @@ namespace Simulator.Sensors
 
         public override void OnVisualizeToggle(bool state)
         {
-            if (Marker && DestinationGO)
+            if (DestinationPin && DestinationGO)
             {
-                Marker.position = DestinationGO.transform.position + new Vector3(0, 1, 0);
-                Marker.GetComponent<MeshRenderer>().enabled = state;
+                DestinationPin.GetComponent<MeshRenderer>().enabled = state;
+                ToggleVisualization = state;
             }
         }
     }

@@ -5,7 +5,6 @@
  *
  */
 
-using System;
 using UnityEngine;
 using Simulator.Api;
 
