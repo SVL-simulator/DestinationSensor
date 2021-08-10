@@ -126,7 +126,7 @@ MonoBehaviour:
   InitPoseTopic: 
   InitPoseFrame: 
   DestinationCheckRadius: 1
-  DestinationCheckAngle: 30
+  DestinationCheckAngle: 10
   Distance: 0
   AngleDiff: 0
   DestinationCount: 0

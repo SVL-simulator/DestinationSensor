@@ -7,14 +7,28 @@
 
 using UnityEngine;
 using Simulator.Api;
+using Simulator.Sensors;
 
 public class CheckDestination : MonoBehaviour
 {
-    private void OnTriggerEnter(Collider destination)
+    private GameObject SensorGO;
+    private GameObject AgentGO;
+    private DestinationSensor Sensor;
+
+    private void Start()
     {
-        destination.gameObject.SetActive(false);
-        var sensorGO = transform.parent.gameObject;
-        var agentGO = sensorGO.transform.parent.gameObject;
-        ApiManager.Instance?.AddDestinationReached(agentGO);
+        SensorGO = transform.parent.gameObject;
+        AgentGO = SensorGO.transform.parent.gameObject;
+        Sensor = SensorGO.GetComponent<DestinationSensor>();
+    }
+
+    private void OnTriggerStay(Collider destination)
+    {
+        if (Sensor.AngleDiff < Sensor.DestinationCheckAngle)
+        {
+            destination.gameObject.SetActive(false);
+            Sensor.SuccessCount += 1;
+            ApiManager.Instance?.AddDestinationReached(AgentGO);
+        }
     }
 }

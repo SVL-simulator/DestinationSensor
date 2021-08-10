@@ -27,6 +27,22 @@ namespace Simulator.Sensors
         [Range(1.0f, 10.0f)]
         public float DestinationCheckRadius = 1.0f;
 
+        [SensorParameter]
+        [Range(1.0f, 360.0f)]
+        public float DestinationCheckAngle = 10.0f;
+
+        [AnalysisMeasurement(MeasurementType.Distance)]
+        public float Distance = 0;
+
+        [AnalysisMeasurement(MeasurementType.Distance)]
+        public float AngleDiff = 0;
+
+        [AnalysisMeasurement(MeasurementType.Count)]
+        public int DestinationCount = 0;
+
+        [AnalysisMeasurement(MeasurementType.Count)]
+        public int SuccessCount = 0;
+
         private BridgeInstance Bridge;
         private Publisher<Bridge.Data.Ros.PoseStamped> Publish;
         private Publisher<Bridge.Data.Ros.PoseWithCovarianceStamped> PublishInitPose;
@@ -93,6 +109,7 @@ namespace Simulator.Sensors
                 if (SendDestination)
                 {
                     Publish(Destination);
+                    DestinationCount += 1;
                     SendDestination = false;
                 }
 
@@ -110,6 +127,15 @@ namespace Simulator.Sensors
             if (ToggleVisualization)
             {
                 DestinationPin.Rotate(Vector3.up * (120.0f * Time.deltaTime));
+            }
+        }
+
+        public void FixedUpdate()
+        {
+            if (DestinationGO)
+            {
+                Distance = Vector3.Distance(DestinationGO.transform.position, transform.position);
+                AngleDiff = Vector3.Angle(DestinationGO.transform.forward, transform.forward);
             }
         }
 
