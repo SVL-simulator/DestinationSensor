@@ -106,17 +106,17 @@ namespace Simulator.Sensors
         {
             if (Bridge != null && Bridge.Status == Status.Connected)
             {
+                if (SendInitPose)
+                {
+                    PublishInitPose(InitPose);
+                    SendInitPose = false;
+                }
+
                 if (SendDestination)
                 {
                     Publish(Destination);
                     DestinationCount += 1;
                     SendDestination = false;
-                }
-
-                if (SendInitPose)
-                {
-                    PublishInitPose(InitPose);
-                    SendInitPose = false;
                 }
             }
             else
@@ -124,7 +124,7 @@ namespace Simulator.Sensors
                 Debug.Log($"{Bridge != null} {Bridge?.Status}");
             }
 
-            if (ToggleVisualization)
+            if (ToggleVisualization && DestinationPin)
             {
                 DestinationPin.Rotate(Vector3.up * (120.0f * Time.deltaTime));
             }
@@ -177,7 +177,7 @@ namespace Simulator.Sensors
                         x = 0.0,
                         y = 0.0,
                         z = nav_pose.orientation.z,
-                        w = nav_pose.orientation.w
+                        w = nav_pose.orientation.w,
                     }
                 }
             };
@@ -185,13 +185,8 @@ namespace Simulator.Sensors
             SendInitPose = true;
         }
 
-        public void SetDestination(Vector3 position, Vector3 rotation, bool init=false)
+        public void SetDestination(Vector3 position, Vector3 rotation)
         {
-            if (init)
-            {
-                SetInitialPose();
-            }
-
             if (DestinationGO)
             {
                 Destroy(DestinationGO);
@@ -233,7 +228,7 @@ namespace Simulator.Sensors
                         x = 0.0,
                         y = 0.0,
                         z = nav_pose.orientation.z,
-                        w = nav_pose.orientation.w
+                        w = nav_pose.orientation.w,
                     }
                 }
             };
