@@ -24,6 +24,9 @@ namespace Simulator.Sensors
         public string InitPoseFrame;
 
         [SensorParameter]
+        public string CancelTopic;
+
+        [SensorParameter]
         [Range(1.0f, 10.0f)]
         public float DestinationCheckRadius = 1.0f;
 
@@ -46,10 +49,12 @@ namespace Simulator.Sensors
         private BridgeInstance Bridge;
         private Publisher<Bridge.Data.Ros.PoseStamped> Publish;
         private Publisher<Bridge.Data.Ros.PoseWithCovarianceStamped> PublishInitPose;
+        private Publisher<Bridge.Data.Ros.PoseStamped> PublishCancel;
         private Bridge.Data.Ros.PoseStamped Destination;
         private Bridge.Data.Ros.PoseWithCovarianceStamped InitPose;
         private bool SendDestination = false;
         private bool SendInitPose = false;
+        private bool SendCancel = false;
         private bool ToggleVisualization = false;
         private NavOrigin NavOrigin;
         private GameObject DestinationGO;
@@ -95,6 +100,7 @@ namespace Simulator.Sensors
             Bridge = bridge;
             Publish = Bridge.AddPublisher<Bridge.Data.Ros.PoseStamped>(Topic);
             PublishInitPose = Bridge.AddPublisher<Bridge.Data.Ros.PoseWithCovarianceStamped>(InitPoseTopic);
+            PublishCancel = Bridge.AddPublisher<Bridge.Data.Ros.PoseStamped>(CancelTopic);
         }
 
         public override System.Type GetDataBridgePlugin()
@@ -117,6 +123,12 @@ namespace Simulator.Sensors
                     Publish(Destination);
                     DestinationCount += 1;
                     SendDestination = false;
+                }
+
+                if (SendCancel)
+                {
+                    PublishCancel(Destination);
+                    SendCancel = false;
                 }
             }
             else
@@ -234,6 +246,41 @@ namespace Simulator.Sensors
             };
 
             SendDestination = true;
+        }
+
+        public void CancelDestination()
+        {
+            if (DestinationGO)
+            {
+                Destroy(DestinationGO);
+            }
+
+            Destination = new Bridge.Data.Ros.PoseStamped
+            {
+                header = new Bridge.Data.Ros.Header()
+                {
+                    stamp = GetRosTime(),
+                    frame_id = Frame,
+                },
+                pose = new Bridge.Data.Ros.Pose
+                {
+                    position = new Bridge.Data.Ros.Point
+                    {
+                        x = 0.0,
+                        y = 0.0,
+                        z = 0.0,
+                    },
+                    orientation = new Bridge.Data.Ros.Quaternion
+                    {
+                        x = 0.0,
+                        y = 0.0,
+                        z = 0.0,
+                        w = 0.0,
+                    }
+                }
+            };
+
+            SendCancel = true;
         }
 
         public override void OnVisualize(Visualizer visualizer) {}
