@@ -56,13 +56,11 @@ namespace Simulator.Sensors
         private bool SendInitPose = false;
         private bool SendCancel = false;
         private bool ToggleVisualization = false;
-        private NavOrigin NavOrigin;
         private GameObject DestinationGO;
         private Transform DestinationPin;
 
         protected override void Initialize()
         {
-            NavOrigin = NavOrigin.Find();
             DestinationPin = transform.Find("Pin");
         }
 
@@ -167,7 +165,8 @@ namespace Simulator.Sensors
 
         public void SetInitialPose()
         {
-            var nav_pose = NavOrigin.GetNavPose(transform);
+            NavOrigin nav_origin = NavOrigin.Find();
+            var nav_pose = nav_origin.GetNavPose(transform);
 
             InitPose = new Bridge.Data.Ros.PoseWithCovarianceStamped
             {
@@ -204,11 +203,12 @@ namespace Simulator.Sensors
                 Destroy(DestinationGO);
             }
 
+            NavOrigin nav_origin = NavOrigin.Find();
             position.y = transform.position.y;
             DestinationGO = new GameObject("Destination");
             DestinationGO.transform.position = position;
             DestinationGO.transform.rotation = Quaternion.Euler(rotation);
-            DestinationGO.transform.parent = NavOrigin.transform;
+            DestinationGO.transform.parent = nav_origin.transform;
             DestinationGO.layer = LayerMask.NameToLayer("Destination");
             SphereCollider col = DestinationGO.AddComponent<SphereCollider>();
             col.radius = DestinationCheckRadius;
@@ -219,7 +219,7 @@ namespace Simulator.Sensors
                 DestinationPin.position = DestinationGO.transform.position + Vector3.up;
             }
 
-            var nav_pose = NavOrigin.GetNavPose(DestinationGO.transform);
+            var nav_pose = nav_origin.GetNavPose(DestinationGO.transform);
             Destination = new Bridge.Data.Ros.PoseStamped
             {
                 header = new Bridge.Data.Ros.Header()
