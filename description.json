@@ -2,7 +2,7 @@
     "id": "3f1db91f-4eed-43b2-99ed-c78c129d6aa1",
     "name": "Destination Sensor",
     "accessType": "public",
-    "description": "A sensor for sending a destination to Navigation2 stack",
+    "description": "The Destination Sensor is used to set an initial pose or a destination pose of an attached agent for Navigation2 stack via python API scripts. The sensor publishes to ROS and ROS2 using the `geometry_msgs/PoseStamped` message type.\nSee {{DOCS_HOST}}/docs/simulation-content/sensors-list/#destination-sensor for more details.",
     "licenseName": "LG Content",
     "copyright": "LG Electronics Inc.",
     "tags": [
@@ -10,7 +10,7 @@
             "name": "LG"
         },
         {
-            "name": "Destination"
+            "name": "ROS"
         },
         {
             "name": "Robotics"
